@@ -1,12 +1,67 @@
+// Classes
+class Boid {
+  constructor () {
+    const startingVelocity = random(2, 5);
+
+    this.id = boidId ++;
+    
+    this.pos = Vector2.random().mult(canvas.v);
+    this.vel = Vector2.random().setMag(startingVelocity);
+    this.acc = Vector2.zero();
+
+    this.maxForce = 0.2;
+    this.maxSpeed = 5;
+
+    this.gang = null;
+  }
+
+  static setupDraw () { noFill(); stroke(colors.white); strokeWeight(1); }
+
+  step () {
+    this.pos.add(this.vel);
+
+    this.vel.add(this.acc);
+    this.vel.limit(this.maxSpeed);
+
+    this.acc = Vector2.zero();
+
+    if (this.pos.x > canvas.w) this.pos.x = 0;
+    else if (this.pos.x < 0) this.pos.x = canvas.w;
+
+    if (this.pos.y > canvas.h) this.pos.y = 0;
+    else if (this.pos.y < 0) this.pos.y = canvas.h;
+  }
+
+  draw () {
+    const triSize = 10;
+    let height = Math.sqrt( Math.pow(triSize * 2, 2) - (Math.pow(triSize, 2) / 4) ) / 2;
+    let width = triSize / 2;
+
+    push(); translate(this.pos.x, this.pos.y); rotate(this.vel.angle + 1.5708);
+
+    triangle(0, -height, -width, height, width, height);
+
+    pop();
+  }
+}
+
 // Globals
 let canvas = {
   e: null, // Canvas element
 
   w: null, // Canvas width
   h: null, // Canvas height
+
+  v: null, // Canvas size Vector2
 };
 
 let colors = {};
+
+let boids = [];
+
+let boidId = 0;
+
+const BOID_AMOUNT = 25;
 
 // p5 Functions
 function setup () {
@@ -25,26 +80,20 @@ function setup () {
     blue: color(0, 0, 255),
     red: color(255, 0, 0),
   }
+
+  for (let i = 0; i < BOID_AMOUNT; i ++) boids.push(new Boid());
 }
 
 function draw () {
   // Clearing
   background(colors.black);
 
-  // Drawing
-  noStroke(); rectMode(CORNERS);
-  
-  fill(colors.gray);
-  rect(
-    canvas.w * 1 / 6, canvas.h * 1 / 6,
-    canvas.w * 5 / 6, canvas.h * 5 / 6
-  );
+  // Calculations
+  for (let boid of boids) boid.step();
 
-  fill(colors.white);
-  rect(
-    canvas.w * 1 / 3, canvas.h * 1 / 3,
-    canvas.w * 2 / 3, canvas.h * 2 / 3,
-  );
+  // Drawing
+  Boid.setupDraw();
+  for (let boid of boids) boid.draw();
 }
 
 function windowResized () {
@@ -52,6 +101,7 @@ function windowResized () {
 
   canvas.w = size.w;
   canvas.h = size.h;
+  canvas.v = new Vector2(canvas.w, canvas.h);
 
   resizeCanvas(size.w, size.h);
 }
