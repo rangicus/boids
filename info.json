@@ -1,4 +1,4 @@
 {
-    "name": "Project Template",
-    "desc": "A template for prototyping future projects."
+    "name": "Boids",
+    "desc": "A simple simulation of flocking birds."
 }
