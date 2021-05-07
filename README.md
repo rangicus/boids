@@ -1,2 +1,2 @@
-# project-template
-A template for my personal projects.
+# boids
+A simple simulation of flocking birds.
